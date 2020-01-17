@@ -4,7 +4,7 @@
 --]]
 
 local BSYC = select(2, ...) --grab the addon namespace
-local L = LibStub("AceLocale-3.0"):GetLocale("BagSync", true)
+local L = LibStub("AceLocale-3.0"):GetLocale("BagSync")
 local Module = BSYC:NewModule("Minimap")
 
 local bgMinimapButton = CreateFrame("Frame","BagSync_MinimapButton", Minimap)
@@ -66,13 +66,14 @@ bgsMinimapDD.initialize = function(self, level)
 			BSYC:GetModule("Blacklist").frame:Show()
 		end)
 		addButton(level, L.Gold, nil, 1, nil, 'gold', function(frame, ...)
-			BSYC:ShowMoneyTooltip()
+			BSYC:GetModule("Tooltip"):MoneyTooltip()
 		end)
 		addButton(level, L.FixDB, nil, 1, nil, 'fixdb', function(frame, ...)
-			BSYC:FixDB()
+			BSYC:GetModule("Data"):CleanDB()
 		end)
 		addButton(level, L.Config, nil, 1, nil, 'config', function(frame, ...)
-			LibStub("AceConfigDialog-3.0"):Open("BagSync")
+			InterfaceOptionsFrame:Show() --has to be here to load the about frame onLoad
+			InterfaceOptionsFrame_OpenToCategory(BSYC.aboutPanel) --force the panel to show
 		end)
 		addButton(level, "", nil, 1) --space ;)
 		addButton(level, L.Close, nil, 1)
@@ -121,3 +122,10 @@ bgMinimapButton:SetScript('OnLeave', function(self)
 	GameTooltip:Hide()
 end)
 
+function Module:OnEnable()
+	if BSYC.options.enableMinimap and not bgMinimapButton:IsVisible() then
+		bgMinimapButton:Show()
+	elseif not BSYC.options.enableMinimap and bgMinimapButton:IsVisible() then
+		bgMinimapButton:Hide()
+	end
+end
